@@ -7,11 +7,13 @@ from api.services.climate_jobs import get_climate_jobs
 
 
 @init_db
-def get_jobs(cursor):
+def get_jobs(cursor, offset):
     cursor.execute(
-        """
+        f"""
           SELECT row_to_json(climate_jobs) AS json_object
-          FROM climate_jobs;
+          FROM climate_jobs
+          LIMIT 10
+          OFFSET {offset or 0};
         """
     )
     data = cursor.fetchall()

@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask_cors import CORS
 
 from config import Config
 
@@ -6,6 +7,8 @@ from config import Config
 def create_app(config_class=Config):
     app = Flask(__name__, static_folder='../client/build/static',
                 template_folder='../client/build')
+    CORS(app)
+
     app.config.from_object(config_class)
 
     from api import bp as api_bp

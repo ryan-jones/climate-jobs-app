@@ -1,12 +1,14 @@
-from flask import Blueprint
-import api.services
+from flask import Blueprint, request
+import api.services as services
 
 bp = Blueprint('main', __name__)
 
 
 @bp.get('/jobs')
 def get_jobs_list():
-    return services.get_jobs()
+    args = request.args.to_dict()
+    offset = args.get('offset')
+    return services.get_jobs(offset)
 
 
 @bp.post('/jobs/update')
