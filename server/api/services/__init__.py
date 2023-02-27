@@ -2,8 +2,8 @@ import json
 
 from psycopg2.extras import execute_values
 
-from database import init_db
-from services.climate_jobs import get_climate_jobs
+from api.database import init_db
+from api.services.climate_jobs import get_climate_jobs
 
 
 @init_db
