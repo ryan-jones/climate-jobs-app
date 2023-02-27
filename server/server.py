@@ -4,7 +4,8 @@ from config import Config
 
 
 def create_app(config_class=Config):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../client/build/static',
+                template_folder='../client/build')
     app.config.from_object(config_class)
 
     from api import bp as api_bp
