@@ -25,8 +25,10 @@ def build_job_object(source, url, job_dict):
     job_links = soup.select(job_dict['job_links'])
     job_titles = soup.select(job_dict['job_titles'])
     company_names = soup.select(job_dict['company_names'])
-    job_locations = soup.select(job_dict['job_locations']) if job_dict['job_locations'] else None
+    job_locations = soup.select(
+        job_dict['job_locations']) if job_dict['job_locations'] else None
     job_postings = soup.select(job_dict['job_postings'])
+    salaries = soup.select(job_dict['salary']) if job_dict['salary'] else None
     for index, job in enumerate(jobs):
         climate_jobs.append({
             'source': source,
@@ -34,7 +36,8 @@ def build_job_object(source, url, job_dict):
             'title': job_titles[index].getText(),
             'company': company_names[index].getText(),
             'location': job_locations[index].getText().strip() if job_locations else None,
-            'posted': format_posting(job_postings[index].getText().strip())
+            'posted': format_posting(job_postings[index].getText().strip()),
+            'salary': salaries[index].getText() if salaries and index < len(salaries) else None
         })
     return climate_jobs
 
@@ -48,7 +51,8 @@ def get_climate_base_jobs(page):
         'job_titles': '.list_card__title',
         'company_names': '.list_card__subtitle',
         'job_locations': 'div[type="location"]',
-        'job_postings': 'div[type="calendar"]'
+        'job_postings': 'div[type="calendar"]',
+        'salary': 'div[class^="MetadataInfo_SalaryContainer-"]'
     }))
     return climate_base_jobs
 
@@ -62,7 +66,8 @@ def get_climate_people_jobs(page):
         'job_titles': '.job-card-title',
         'company_names': '.job-card-company-name > div',
         'job_locations': None,
-        'job_postings': '.job-card-date'
+        'job_postings': '.job-card-date',
+        'salary': None
     }))
     return climate_people_jobs
 

@@ -22,29 +22,27 @@ def get_jobs(cursor, offset):
 
     # Convert the list of dictionaries to a JSON object
     response = json.dumps(results)
-    print(response)
     return response
 
 
 CREATE_JOBS_TABLE = (
     """CREATE TABLE IF NOT EXISTS climate_jobs (
-    id SERIAL PRIMARY KEY,
-    source TEXT, 
-    href TEXT, 
-    title TEXT, 
-    company TEXT, 
-    location TEXT, 
-    posted TEXT,
-    last_updated DATE DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY,
+        source TEXT, 
+        href TEXT, 
+        title TEXT, 
+        company TEXT, 
+        location TEXT, 
+        posted TEXT,
+        salary TEXT,
+        last_updated DATE DEFAULT CURRENT_TIMESTAMPTZ
     );"""
 )
 
-DELETE_JOBS = (
-    'DELETE FROM climate_jobs'
-)
+DELETE_JOBS = 'DELETE FROM climate_jobs'
 
 INSERT_JOBS = (
-    """INSERT INTO climate_jobs (company, source, href, title, location, posted)
+    """INSERT INTO climate_jobs (company, source, href, title, location, posted, salary)
         VALUES %s
     """
 )
@@ -56,7 +54,7 @@ def update_jobs_list(cursor):
     jobs = data['jobs']
     values = [
         (job['company'], job['source'], job['href'],
-         job['title'], job['location'], job['posted'])
+         job['title'], job['location'], job['posted'], job['salary'])
         for job in jobs
     ]
     cursor.execute(CREATE_JOBS_TABLE)
