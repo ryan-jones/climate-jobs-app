@@ -1,5 +1,13 @@
-**/node_modules
 __pycache__
 **/__pycache__
 
 **/.env
+
+# dependencies
+**/node_modules
+
+# production
+**/build
+
+# misc
+**/.DS_Store
