@@ -17,6 +17,7 @@ def init_db(func):
         connection = initialize_db_connection()
         cursor = connection.cursor()
         result = func(cursor, *args, **kwargs)
+        connection.commit()
         cursor.close()
         connection.close()
         return result

@@ -1,19 +1,20 @@
 import json
-
+import psycopg2
 from psycopg2.extras import execute_values
 
 from api.database import init_db
-from api.services.climate_jobs import get_climate_jobs
+from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, RETRIEVE_JOBS, RETRIEVE_SECTOR
+from api.services.jobs import get_climate_jobs
+from api.services.utils import format_sector
 
 
 @init_db
 def get_jobs(cursor, offset):
     cursor.execute(
         f"""
-          SELECT row_to_json(climate_jobs) AS json_object
-          FROM climate_jobs
-          LIMIT 10
-          OFFSET {offset or 0};
+           {RETRIEVE_JOBS}
+            LIMIT 10
+            OFFSET {offset or 0};
         """
     )
     data = cursor.fetchall()
@@ -25,39 +26,44 @@ def get_jobs(cursor, offset):
     return response
 
 
-CREATE_JOBS_TABLE = (
-    """CREATE TABLE IF NOT EXISTS climate_jobs (
-        id SERIAL PRIMARY KEY,
-        source TEXT, 
-        href TEXT, 
-        title TEXT, 
-        company TEXT, 
-        location TEXT, 
-        posted TEXT,
-        salary TEXT,
-        last_updated DATE DEFAULT CURRENT_TIMESTAMPTZ
-    );"""
-)
-
-DELETE_JOBS = 'DELETE FROM climate_jobs'
-
-INSERT_JOBS = (
-    """INSERT INTO climate_jobs (company, source, href, title, location, posted, salary)
-        VALUES %s
-    """
-)
+def create_job_sectors(cursor, job_id, sector):
+    formatted_sector = format_sector(sector)
+    cursor.execute(RETRIEVE_SECTOR, ([formatted_sector]))
+    result = cursor.fetchone()
+    if result is None:
+        print(f'None value for {formatted_sector}')
+        return (job_id, None)
+    sector_id = result[0]
+    return (job_id, sector_id)
 
 
 @init_db
 def update_jobs_list(cursor):
-    data = get_climate_jobs()
-    jobs = data['jobs']
-    values = [
-        (job['company'], job['source'], job['href'],
-         job['title'], job['location'], job['posted'], job['salary'])
-        for job in jobs
-    ]
-    cursor.execute(CREATE_JOBS_TABLE)
-    cursor.execute(DELETE_JOBS)  # removes old job data
-    execute_values(cursor, INSERT_JOBS, values)
-    return {"message": f"{data['count']} jobs added"}, 201
+    try:
+        data = get_climate_jobs()
+        jobs = data['jobs']
+
+        cursor.execute(DELETE_JOBS)  # removes old job data
+
+        for job in jobs:
+
+            values = (job['company'], job['source'], job['href'],
+                      job['title'], job['location'], job['posted'], job['salary'])
+
+            cursor.execute(INSERT_JOBS, values)
+
+            job_id = cursor.fetchone()[0]
+            for sector in job['sectors']:
+                job_sector = create_job_sectors(cursor, job_id, sector)
+                cursor.execute(INSERT_JOB_SECTOR, job_sector)
+
+        return {"message": f"{data['count']} jobs added"}, 201
+    except (psycopg2.Error) as error:
+        print('Failed to insert job records', error)
+
+
+@init_db
+def get_sectors(cursor):
+    cursor.execute('SELECT * FROM sectors')
+    data = cursor.fetchall()
+    return data

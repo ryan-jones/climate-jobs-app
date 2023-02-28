@@ -14,3 +14,8 @@ def get_jobs_list():
 @bp.post('/jobs/update')
 def update_list():
     return services.update_jobs_list()
+
+
+@bp.get('/sectors')
+def get_sectors():
+    return services.get_sectors()
