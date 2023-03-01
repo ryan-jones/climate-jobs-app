@@ -13,7 +13,18 @@ const useGetJobs = () => {
         `${process.env.REACT_APP_API_URL}/api/jobs?offset=${offset}`
       );
       const data = await response.json();
-      setJobs(data);
+      const formattedData = data.map((row: Record<string, any>) => ({
+        source: row.source,
+        href: row.href,
+        companyName: row.company_name,
+        title: row.title,
+        location: row.location,
+        salary: row.salary,
+        posted: row.posted,
+        sectors: row.sectors,
+        lastUpdated: row.last_updated,
+      }));
+      setJobs(formattedData);
     } catch (error) {
       console.log(error);
       setError('An error occured while retrieving the latest jobs!');

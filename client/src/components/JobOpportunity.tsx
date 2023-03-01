@@ -1,23 +1,28 @@
 import {
-  Box,
+  Badge,
   Card,
   CardBody,
   CardHeader,
   Flex,
   Heading,
   HStack,
+  LinkBox,
+  LinkOverlay,
+  Stack,
   StackDivider,
   Text,
 } from '@chakra-ui/react';
 import JobLocation from './JobLocation';
 import CompanyLogo from './Logos/CompanyLogo';
 import { JobPost } from '../types/jobs';
+import { truncate } from '../utils/strings';
+import { formatTimestamp } from '../utils/dates';
 
 interface JobOpportunityProps {
   job: JobPost;
 }
 const JobOpportunity = ({ job }: JobOpportunityProps) => (
-  <Box>
+  <LinkBox>
     <Flex justifyContent="flex-end">
       <Flex
         marginRight={1}
@@ -30,21 +35,33 @@ const JobOpportunity = ({ job }: JobOpportunityProps) => (
         <CompanyLogo source={job.source} />
       </Flex>
     </Flex>
-    <Card>
+    <Card minHeight="215px">
       <CardHeader>
-        <Flex>
-          <Heading size="md">{job.title}</Heading>
+        <Flex justifyContent={'space-between'}>
+          <LinkOverlay href={job.href} isExternal maxWidth="50%">
+            <Heading size="md">{truncate(job.title)}</Heading>
+          </LinkOverlay>
+          <Text>Posted {formatTimestamp(job.posted)}</Text>
         </Flex>
       </CardHeader>
       <CardBody>
-        <HStack divider={<StackDivider />} alignItems="flex-end">
-          <Heading size="xs">{job.company}</Heading>
-          {job.location && <JobLocation location={job.location} />}
-          {job.salary && <Text fontSize="sm">{job.salary}</Text>}
-        </HStack>
+        <Stack spacing={4} divider={<StackDivider />}>
+          <HStack divider={<StackDivider />} alignItems="flex-end">
+            <Heading size="xs">{job.companyName}</Heading>
+            {job.location && <JobLocation location={job.location} />}
+            {job.salary && <Text fontSize="sm">{job.salary}</Text>}
+          </HStack>
+          <HStack justifyContent="flex-end">
+            {job.sectors.map((sector) => (
+              <Badge variant="outline" padding={2}>
+                {sector}
+              </Badge>
+            ))}
+          </HStack>
+        </Stack>
       </CardBody>
     </Card>
-  </Box>
+  </LinkBox>
 );
 
 export default JobOpportunity;

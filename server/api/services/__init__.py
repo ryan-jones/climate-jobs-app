@@ -3,9 +3,16 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 from api.database import init_db
-from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, RETRIEVE_JOBS, RETRIEVE_SECTOR
-from api.services.jobs import get_climate_jobs
-from api.services.utils import format_sector
+from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, RETRIEVE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS
+from api.services.jobs import get_climate_jobs, create_job_sectors
+
+
+@init_db
+def get_sectors(cursor):
+    '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
+    cursor.execute(RETRIEVE_SECTORS)
+    data = cursor.fetchall()
+    return data
 
 
 @init_db
@@ -26,23 +33,12 @@ def get_jobs(cursor, offset):
     return response
 
 
-def create_job_sectors(cursor, job_id, sector):
-    formatted_sector = format_sector(sector)
-    cursor.execute(RETRIEVE_SECTOR, ([formatted_sector]))
-    result = cursor.fetchone()
-    if result is None:
-        print(f'None value for {formatted_sector}')
-        return (job_id, None)
-    sector_id = result[0]
-    return (job_id, sector_id)
-
-
 @init_db
 def update_jobs_list(cursor):
     try:
         data = get_climate_jobs()
         jobs = data['jobs']
-
+        cursor.execute(DELETE_JOB_SECTORS)
         cursor.execute(DELETE_JOBS)  # removes old job data
 
         for job in jobs:
@@ -60,10 +56,3 @@ def update_jobs_list(cursor):
         return {"message": f"{data['count']} jobs added"}, 201
     except (psycopg2.Error) as error:
         print('Failed to insert job records', error)
-
-
-@init_db
-def get_sectors(cursor):
-    cursor.execute('SELECT * FROM sectors')
-    data = cursor.fetchall()
-    return data

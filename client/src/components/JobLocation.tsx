@@ -8,7 +8,7 @@ const JobLocation = ({ location }: JobLocationProps) => {
     return <Badge colorScheme="green">Remote</Badge>;
   }
 
-  return <Badge variant="outline">{location}</Badge>;
+  return <Badge variant="subtle">{location}</Badge>;
 };
 
 export default JobLocation;

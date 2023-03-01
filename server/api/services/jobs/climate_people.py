@@ -1,9 +1,11 @@
-from api.services.utils import format_posting
-from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 import requests
+from bs4 import BeautifulSoup
+from api.services.jobs.utils import format_posting
 
 
-def build_job_object(source, url):
+def build_job_object(url):
+    source = f'https://{urlparse(url).netloc}'
     climate_jobs = []
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -29,5 +31,5 @@ def build_job_object(source, url):
 def get_climate_people_jobs(page):
     climate_people_jobs = []
     url = f'https://www.climatepeople.com/jobs?1adb951e_page={page}'
-    climate_people_jobs.extend(build_job_object('climatepeople.com', url))
+    climate_people_jobs.extend(build_job_object(url))
     return climate_people_jobs
