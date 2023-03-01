@@ -1,4 +1,4 @@
 export enum JobSource {
-  ClimateBase = 'climatebase.org',
-  ClimatePeople = 'climatepeople.com',
+  ClimateBase = 'www.climatebase.org',
+  ClimatePeople = 'www.climatepeople.com',
 }

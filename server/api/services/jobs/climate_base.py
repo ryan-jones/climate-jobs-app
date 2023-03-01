@@ -10,26 +10,25 @@ def build_job_object(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     jobs = soup.select('.list_card')
-    job_links = soup.select('.list_card')
-    job_titles = soup.select('.list_card__title')
-    company_names = soup.select('.list_card__subtitle')
-    job_locations = soup.select(
-        'div[type="location"]')
-    job_postings = soup.select('div[type="calendar"]')
 
-    for index, job in enumerate(jobs):
+    for job in jobs:
         sectors = [x.getText()
-                   for x in jobs[index].select('.list_card__tag')]
-        salary = jobs[index].select_one(
+                   for x in job.select('.list_card__tag')]
+        salary = job.select_one(
             '.MetadataInfo__SalaryContainer-hif7kv-0')
+        title = job.select_one('.list_card__title')
+        company_name = job.select_one('.list_card__subtitle')
+        job_location = job.select_one(
+            'div[type="location"]')
+        job_posting = job.select_one('div[type="calendar"]')
 
         climate_jobs.append({
             'source': source,
-            'href': f"{source}{job_links[index].get('href', '')}",
-            'title': job_titles[index].getText(),
-            'company': company_names[index].getText(),
-            'location': job_locations[index].getText().strip() if job_locations else None,
-            'posted': format_posting(job_postings[index].getText().strip()),
+            'href': f"{source}{job.get('href', '')}",
+            'title': title.getText() if title else None,
+            'company': company_name.getText() if company_name else None,
+            'location': job_location.getText().strip() if job_location else None,
+            'posted': format_posting(job_posting.getText().strip()) if job_posting else None,
             'salary': salary.getText() if salary else None,
             'sectors': sectors
         })

@@ -7,7 +7,9 @@ interface CompanyLogoProps {
   source: string;
 }
 const CompanyLogo = ({ source }: CompanyLogoProps) => {
-  if (source === JobSource.ClimateBase) {
+  const sourceUrl = new URL(source);
+
+  if (sourceUrl.hostname === JobSource.ClimateBase) {
     return <ClimateBaseLogo height="30" />;
   }
 

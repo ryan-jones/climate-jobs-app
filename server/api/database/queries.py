@@ -13,7 +13,7 @@ RETRIEVE_JOBS = (
     '''
         SELECT row_to_json(q)
         FROM (
-        SELECT j.source, j.href, j.company_name, j.location, j.title, j.posted, j.salary, j.last_updated, array_agg(sectors.name) as sectors
+        SELECT j.id, j.source, j.href, j.company_name, j.location, j.title, j.posted, j.salary, j.last_updated, array_agg(sectors.name) as sectors
         FROM jobs j
         JOIN job_sectors ON j.id = job_sectors.job_id
         JOIN sectors ON job_sectors.sector_id = sectors.id

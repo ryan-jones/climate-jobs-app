@@ -10,3 +10,11 @@ export interface JobPost {
   sectors: string[];
   salary?: string;
 }
+
+export interface JobFilters {
+  sectors?: string[];
+  title?: string;
+  location?: string;
+  posted?: string;
+  source?: string;
+}

@@ -5,7 +5,7 @@ interface JobLocationProps {
 }
 const JobLocation = ({ location }: JobLocationProps) => {
   if (location.toLowerCase() === 'remote') {
-    return <Badge colorScheme="green">Remote</Badge>;
+    return <Badge colorScheme="green">{location}</Badge>;
   }
 
   return <Badge variant="subtle">{location}</Badge>;

@@ -16,13 +16,25 @@ def get_sectors(cursor):
 
 
 @init_db
-def get_jobs(cursor, offset):
-    cursor.execute(
-        f"""
+def get_jobs(cursor, filters):
+    print('filters', filters)
+    where_filters = []
+    if 'company_name' in filters:
+        where_filters.append(f"company_name = '{filters['company_name']}'")
+    if 'location' in filters:
+        where_filters.append(f"location = '{filters['location']}'")
+    where_clause = "WHERE " + \
+        " AND ".join(where_filters) if where_filters else ""
+
+    query_string = f"""
            {RETRIEVE_JOBS}
+            {where_clause}
             LIMIT 10
-            OFFSET {offset or 0};
+            OFFSET {filters.get('offset', 0)};
         """
+    print('QUERY ===> ', query_string)
+    cursor.execute(
+        query_string
     )
     data = cursor.fetchall()
     # Convert each row to a dictionary

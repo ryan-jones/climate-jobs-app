@@ -4,11 +4,11 @@ import api.services as services
 bp = Blueprint('main', __name__)
 
 
-@bp.get('/jobs')
+@bp.post('/jobs')
 def get_jobs_list():
-    args = request.args.to_dict()
-    offset = args.get('offset')
-    return services.get_jobs(offset)
+    request_body = request.get_json()
+    print('args', request_body)
+    return services.get_jobs(request_body)
 
 
 @bp.post('/jobs/update')

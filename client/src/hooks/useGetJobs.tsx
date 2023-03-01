@@ -6,14 +6,22 @@ const useGetJobs = () => {
   const [error, setError] = useState<string | string[] | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchJobs = useCallback(async (offset = 0) => {
+  const fetchJobs = useCallback(async (queryParams: Record<string, any>) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/jobs?offset=${offset}`
+        `${process.env.REACT_APP_API_URL}/api/jobs`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(queryParams),
+        }
       );
       const data = await response.json();
       const formattedData = data.map((row: Record<string, any>) => ({
+        id: row.id,
         source: row.source,
         href: row.href,
         companyName: row.company_name,
