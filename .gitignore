@@ -5,8 +5,8 @@ __pycache__
 # dependencies
 **/node_modules
 
-# production
-**/build
+# # production
+# **/build
 
 # misc
 **/.DS_Store
