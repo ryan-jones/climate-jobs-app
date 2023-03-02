@@ -16,7 +16,7 @@ const SectorSelect = ({ setQueryFilters, filters }: SectorSelectProps) => {
       <Select
         useBasicStyles
         isMulti
-        placeholder="select sectors"
+        placeholder="E.g. 'Energy'"
         value={filters?.sectors?.value}
         options={sectors.map((sector) => ({
           label: sector.name,

@@ -15,7 +15,6 @@ const useGetJobs = () => {
 
         setJobs(data);
       } catch (error) {
-        console.log(error);
         setError('An error occured while retrieving the latest jobs!');
       } finally {
         setLoading(false);

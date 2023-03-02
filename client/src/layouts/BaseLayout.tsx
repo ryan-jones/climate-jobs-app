@@ -1,6 +1,6 @@
 import { Flex, HStack, Image, Heading, Box } from '@chakra-ui/react';
 import { ReactNode } from 'react';
-import treeImg from '../assets/tree.jpg';
+import treeImg from '../assets/tree.svg';
 
 interface BaseLayoutProps {
   children: ReactNode;
@@ -18,13 +18,8 @@ const BaseLayout = ({ children }: BaseLayoutProps) => (
       zIndex={10}
     >
       <nav>
-        <HStack spacing={4} alignItems="flex-end">
-          <Image
-            boxSize="50px"
-            objectFit="cover"
-            src={treeImg}
-            alt="tree logo"
-          />
+        <HStack spacing={2} alignItems="flex-end">
+          <Image boxSize="50px" src={treeImg} alt="tree logo" />
           <Heading as="h1">Climatica</Heading>
         </HStack>
       </nav>

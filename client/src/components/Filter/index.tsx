@@ -7,7 +7,8 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import useDebouncedValue from '../../hooks/useDebounce';
 import {
   FilterOptions,
   JobFilterQueryValues,
@@ -22,9 +23,10 @@ interface FilterProps {
 }
 const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
   const [queryFilters, setQueryFilters] = useState<FilterOptions>({});
+  const debouncedQueryFilters = useDebouncedValue(queryFilters, 1000);
 
-  const fetchData = async () => {
-    const queryResult = Object.entries(queryFilters).reduce(
+  useEffect(() => {
+    const queryResult = Object.entries(debouncedQueryFilters).reduce(
       (queryObj: Partial<Record<keyof JobFilters, any>>, [key, value]) => {
         queryObj[key as keyof JobFilters] = value.queryString;
         return queryObj;
@@ -33,9 +35,12 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
     );
 
     onSubmitQueryWithFilters(queryResult);
+  }, [debouncedQueryFilters, onSubmitQueryWithFilters]);
+
+  const onClearFilters = () => {
+    setQueryFilters({});
   };
 
-  console.log('queryFilters', queryFilters);
   return (
     <Flex
       direction="column"
@@ -47,7 +52,7 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
         <FormControl>
           <FormLabel>Search by Job Title</FormLabel>
           <Input
-            placeholder="Search by job title"
+            placeholder="E.g. 'Fullstack Developer'"
             value={queryFilters?.title?.value || ''}
             onChange={(event) => {
               setQueryFilters((prev) => ({
@@ -64,7 +69,7 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
         <FormControl>
           <FormLabel>Search by Company</FormLabel>
           <Input
-            placeholder="Search by company name"
+            placeholder="E.g. 'Climatica'"
             value={queryFilters?.companyName?.value || ''}
             onChange={(event) => {
               setQueryFilters((prev) => ({
@@ -83,7 +88,7 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
         <FormControl>
           <FormLabel>Search by Location</FormLabel>
           <Input
-            placeholder="Search by job location"
+            placeholder="E.g. 'Remote'"
             value={queryFilters?.location?.value || ''}
             onChange={(event) => {
               setQueryFilters((prev) => ({
@@ -116,12 +121,8 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
           setQueryFilters={setQueryFilters}
         />
       </Stack>
-      <Button
-        justifySelf={'flex-end'}
-        onClick={fetchData}
-        backgroundColor="lightblue"
-      >
-        Submit
+      <Button colorScheme="red" onClick={onClearFilters}>
+        Clear Filters
       </Button>
     </Flex>
   );

@@ -1,5 +1,5 @@
 import { Flex, Stack, Text, Hide, Show } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import FilterPanel from './FilterPanel';
 import useGetJobs from '../../hooks/useGetJobs';
 import { JobFilterQueryValues } from '../../types/jobs';
@@ -18,9 +18,12 @@ const HomePage = () => {
     }
   }, [fetchJobs]);
 
-  const onSubmitQueryWithFilters = (queryParams: JobFilterQueryValues) => {
-    fetchJobs(queryParams);
-  };
+  const onSubmitQueryWithFilters = useCallback(
+    (queryParams: JobFilterQueryValues) => {
+      fetchJobs(queryParams);
+    },
+    [fetchJobs]
+  );
 
   return (
     <Flex direction="row" height="calc(100% - 83px)">

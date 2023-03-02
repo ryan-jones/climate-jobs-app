@@ -9,8 +9,6 @@ INSERT_JOBS = (
 
 DELETE_JOBS = 'DELETE FROM jobs'
 
-########################################
-
 
 ########### JOB SECTOR QUERIES #########
 INSERT_JOB_SECTOR = (
@@ -22,7 +20,6 @@ INSERT_JOB_SECTOR = (
 )
 
 DELETE_JOB_SECTORS = 'DELETE FROM job_sectors'
-########################################
 
 
 ########### SECTOR QUERIES #############
@@ -37,5 +34,3 @@ RETRIEVE_SECTORS = (
 )
 
 RETRIEVE_SECTOR = 'SELECT id FROM sectors WHERE name = %s'
-
-########################################
