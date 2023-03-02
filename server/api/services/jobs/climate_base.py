@@ -5,7 +5,7 @@ from api.services.jobs.utils import format_posting
 
 
 def build_job_object(url):
-    source = f'https://{urlparse(url).netloc}'
+    source = urlparse(url).netloc
     climate_jobs = []
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -24,7 +24,7 @@ def build_job_object(url):
 
         climate_jobs.append({
             'source': source,
-            'href': f"{source}{job.get('href', '')}",
+            'href': f"https://{source}{job.get('href', '')}",
             'title': title.getText() if title else None,
             'company': company_name.getText() if company_name else None,
             'location': job_location.getText().strip() if job_location else None,

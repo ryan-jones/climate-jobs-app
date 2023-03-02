@@ -27,7 +27,9 @@ const JobOpportunity = ({ job }: JobOpportunityProps) => (
         <Stack spacing={4} divider={<StackDivider />}>
           <>
             <HStack divider={<StackDivider />} alignItems="flex-end">
-              <Heading size="xs">{job.companyName}</Heading>
+              <Heading size="xs" noOfLines={1}>
+                {job.companyName}
+              </Heading>
               {job.location && <JobLocation location={job.location} />}
               {job.salary && (
                 <Hide below="md">

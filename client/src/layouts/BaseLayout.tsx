@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Image, Heading } from '@chakra-ui/react';
+import { Flex, HStack, Image, Heading, Box } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import treeImg from '../assets/tree.jpg';
 
@@ -6,15 +6,32 @@ interface BaseLayoutProps {
   children: ReactNode;
 }
 const BaseLayout = ({ children }: BaseLayoutProps) => (
-  <Stack h="full" minH="100vh" id="app-container" backgroundColor={'#F4EDE0'}>
-    <Flex w="100%" p={8} justify="space-between" backgroundColor={'white'}>
-      <HStack spacing={4} alignItems="flex-end">
-        <Image boxSize="50px" objectFit="cover" src={treeImg} alt="tree logo" />
-        <Heading as="h1">Climate Jobs</Heading>
-      </HStack>
+  <Box height="100vh" id="app-container" border="1px solid black">
+    <Flex
+      width="100%"
+      px={8}
+      py={4}
+      justify="space-between"
+      backgroundColor={'white'}
+      boxShadow={'0 1px 4px 0 rgba(0,0,0,0.4)'}
+      position="relative"
+      zIndex={10}
+    >
+      <nav>
+        <HStack spacing={4} alignItems="flex-end">
+          <Image
+            boxSize="50px"
+            objectFit="cover"
+            src={treeImg}
+            alt="tree logo"
+          />
+          <Heading as="h1">Climatica</Heading>
+        </HStack>
+      </nav>
     </Flex>
+
     {children}
-  </Stack>
+  </Box>
 );
 
 export default BaseLayout;

@@ -17,4 +17,11 @@ export interface JobFilters {
   location?: string;
   posted?: string;
   source?: string;
+  companyName?: string;
 }
+
+export type FilterOptions = Partial<
+  Record<keyof JobFilters, { value: any; queryString: string }>
+>;
+
+export type JobFilterQueryValues = Partial<Record<keyof JobFilters, any>>;

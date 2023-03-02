@@ -1,9 +1,10 @@
 import json
+import ast
 import psycopg2
 from psycopg2.extras import execute_values
 
 from api.database import init_db
-from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, RETRIEVE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS
+from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS
 from api.services.jobs import get_climate_jobs, create_job_sectors
 
 
@@ -12,27 +13,35 @@ def get_sectors(cursor):
     '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
     cursor.execute(RETRIEVE_SECTORS)
     data = cursor.fetchall()
-    return data
+    # Convert each row to a dictionary
+    results = [{key: value for key, value in row[0].items()} for row in data]
+    return results
 
 
 @init_db
 def get_jobs(cursor, filters):
-    print('filters', filters)
-    where_filters = []
-    if 'company_name' in filters:
-        where_filters.append(f"company_name = '{filters['company_name']}'")
-    if 'location' in filters:
-        where_filters.append(f"location = '{filters['location']}'")
+    where_filters = [filters[key] for key in filters if key != 'sectors']
+
     where_clause = "WHERE " + \
         " AND ".join(where_filters) if where_filters else ""
 
+    having_clause = f"HAVING ARRAY{filters['sectors']} && ARRAY(SELECT sector_id FROM job_sectors WHERE job_id = j.id)" if 'sectors' in filters and len(
+        ast.literal_eval(filters['sectors'])) > 0 else ""
+
     query_string = f"""
-           {RETRIEVE_JOBS}
+            SELECT row_to_json(q)
+            FROM (
+                SELECT j.id, j.source, j.href, j.company_name, j.location, j.title, j.posted, j.salary, j.last_updated, array_agg(sectors.name) as sectors
+                FROM jobs j
+                JOIN job_sectors ON j.id = job_sectors.job_id
+                JOIN sectors ON job_sectors.sector_id = sectors.id
+                GROUP BY j.id
+                {having_clause}
+            ) q
             {where_clause}
             LIMIT 10
             OFFSET {filters.get('offset', 0)};
         """
-    print('QUERY ===> ', query_string)
     cursor.execute(
         query_string
     )
@@ -45,7 +54,7 @@ def get_jobs(cursor, filters):
     return response
 
 
-@init_db
+@ init_db
 def update_jobs_list(cursor):
     try:
         data = get_climate_jobs()
