@@ -10,6 +10,7 @@ from api.services.jobs import get_climate_jobs, create_job_sectors
 
 @init_db
 def get_sectors(cursor):
+    print('INSIDE GET SECTORS REQUEST')
     '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
     cursor.execute(RETRIEVE_SECTORS)
     data = cursor.fetchall()
