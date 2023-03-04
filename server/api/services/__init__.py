@@ -10,7 +10,6 @@ from api.services.jobs import get_climate_jobs, create_job_sectors
 
 @init_db
 def get_sectors(cursor):
-    print('INSIDE GET SECTORS REQUEST')
     '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
     cursor.execute(RETRIEVE_SECTORS)
     data = cursor.fetchall()
@@ -86,7 +85,6 @@ def get_job_total_count(cursor):
     try:
         cursor.execute(RETRIEVE_JOBS_COUNT)
         data = cursor.fetchone()[0]
-        print('COUNT DATA', data)
         return {"count": data}
     except (psycopg2.Error) as error:
         print('Failed to retrieve jobs count', error)
