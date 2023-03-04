@@ -7,40 +7,22 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
-import useDebouncedValue from '../../hooks/useDebounce';
-import {
-  FilterOptions,
-  JobFilterQueryValues,
-  JobFilters,
-} from '../../types/jobs';
+import { SelectedFilterOptions } from '../../types/jobs';
 import { JobSource } from '../../types/jobSource';
+import { queryFormatter } from '../../utils/queries';
 import FilterSelect from './FilterSelect';
 import SectorSelect from './SectorSelect';
 
 interface FilterProps {
-  onSubmitQueryWithFilters: (queryParams: JobFilterQueryValues) => void;
+  onClearFilters: () => void;
+  queryFilters: SelectedFilterOptions;
+  setQueryFilters: React.Dispatch<React.SetStateAction<SelectedFilterOptions>>;
 }
-const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
-  const [queryFilters, setQueryFilters] = useState<FilterOptions>({});
-  const debouncedQueryFilters = useDebouncedValue(queryFilters, 1000);
-
-  useEffect(() => {
-    const queryResult = Object.entries(debouncedQueryFilters).reduce(
-      (queryObj: Partial<Record<keyof JobFilters, any>>, [key, value]) => {
-        queryObj[key as keyof JobFilters] = value.queryString;
-        return queryObj;
-      },
-      {}
-    );
-
-    onSubmitQueryWithFilters(queryResult);
-  }, [debouncedQueryFilters, onSubmitQueryWithFilters]);
-
-  const onClearFilters = () => {
-    setQueryFilters({});
-  };
-
+const Filters = ({
+  onClearFilters,
+  setQueryFilters,
+  queryFilters,
+}: FilterProps) => {
   return (
     <Flex
       direction="column"
@@ -53,15 +35,16 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
           <FormLabel>Search by Job Title</FormLabel>
           <Input
             placeholder="E.g. 'Fullstack Developer'"
-            value={queryFilters?.title?.value || ''}
+            value={queryFilters?.filters.title?.value || ''}
             onChange={(event) => {
-              setQueryFilters((prev) => ({
-                ...prev,
-                title: {
-                  value: event.target.value,
-                  queryString: `title ILIKE '%${event.target.value}%'`,
-                },
-              }));
+              setQueryFilters((prev) =>
+                queryFormatter(prev, {
+                  title: {
+                    value: event.target.value,
+                    queryString: `title ILIKE '%${event.target.value}%'`,
+                  },
+                })
+              );
             }}
           />
         </FormControl>
@@ -70,15 +53,16 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
           <FormLabel>Search by Company</FormLabel>
           <Input
             placeholder="E.g. 'Climatica'"
-            value={queryFilters?.companyName?.value || ''}
+            value={queryFilters?.filters.companyName?.value || ''}
             onChange={(event) => {
-              setQueryFilters((prev) => ({
-                ...prev,
-                companyName: {
-                  value: event.target.value,
-                  queryString: `company_name ILIKE '%${event.target.value}%'`,
-                },
-              }));
+              setQueryFilters((prev) =>
+                queryFormatter(prev, {
+                  companyName: {
+                    value: event.target.value,
+                    queryString: `company_name ILIKE '%${event.target.value}%'`,
+                  },
+                })
+              );
             }}
           />
         </FormControl>
@@ -89,15 +73,16 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
           <FormLabel>Search by Location</FormLabel>
           <Input
             placeholder="E.g. 'Remote'"
-            value={queryFilters?.location?.value || ''}
+            value={queryFilters?.filters.location?.value || ''}
             onChange={(event) => {
-              setQueryFilters((prev) => ({
-                ...prev,
-                location: {
-                  value: event.target.value,
-                  queryString: `location ILIKE '%${event.target.value}%'`,
-                },
-              }));
+              setQueryFilters((prev) =>
+                queryFormatter(prev, {
+                  location: {
+                    value: event.target.value,
+                    queryString: `location ILIKE '%${event.target.value}%'`,
+                  },
+                })
+              );
             }}
           />
         </FormControl>
@@ -108,7 +93,7 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
           name="source"
           label="Jobsite"
           placeholder="E.g. 'Climatebase'"
-          value={queryFilters?.source?.value || []}
+          value={queryFilters?.filters.source?.value || []}
           options={[
             { label: 'Climatebase', value: JobSource.ClimateBase },
             { label: 'Climate People', value: JobSource.ClimatePeople },
@@ -117,7 +102,7 @@ const Filters = ({ onSubmitQueryWithFilters }: FilterProps) => {
         />
 
         <SectorSelect
-          filters={queryFilters}
+          queryFilters={queryFilters}
           setQueryFilters={setQueryFilters}
         />
       </Stack>

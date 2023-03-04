@@ -9,13 +9,19 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useRef } from 'react';
-import Filters from '../../../components/Filter';
-import { JobFilterQueryValues } from '../../../types/jobs';
+import Filters from '../Filter';
+import { SelectedFilterOptions } from '../../types/jobs';
 
 interface FilterDrawerProps {
-  onSubmitQueryWithFilters: (queryParams: JobFilterQueryValues) => void;
+  onClearFilters: () => void;
+  queryFilters: SelectedFilterOptions;
+  setQueryFilters: React.Dispatch<React.SetStateAction<SelectedFilterOptions>>;
 }
-const FilterDrawer = ({ onSubmitQueryWithFilters }: FilterDrawerProps) => {
+const FilterDrawer = ({
+  queryFilters,
+  setQueryFilters,
+  onClearFilters,
+}: FilterDrawerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<any>();
 
@@ -35,7 +41,11 @@ const FilterDrawer = ({ onSubmitQueryWithFilters }: FilterDrawerProps) => {
           <DrawerCloseButton />
           <DrawerHeader>Create your account</DrawerHeader>
           <DrawerBody>
-            <Filters onSubmitQueryWithFilters={onSubmitQueryWithFilters} />
+            <Filters
+              onClearFilters={onClearFilters}
+              queryFilters={queryFilters}
+              setQueryFilters={setQueryFilters}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

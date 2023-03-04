@@ -3,17 +3,23 @@ import API from '../api';
 import { JobFilters, JobPost } from '../types/jobs';
 
 const useGetJobs = () => {
-  const [jobs, setJobs] = useState<JobPost[]>([]);
   const [error, setError] = useState<string | string[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState<JobPost[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchJobs = useCallback(
-    async (queryParams: Partial<Record<keyof JobFilters, any>> = {}) => {
+    async (
+      queryParams: Partial<Record<keyof JobFilters | 'offset', any>> = {},
+      reset = false
+    ) => {
       try {
         setLoading(true);
         const data = await API.getJobs(queryParams);
-
-        setJobs(data);
+        if (reset) {
+          setJobs(data);
+        } else {
+          setJobs((prev) => [...prev, ...data]);
+        }
       } catch (error) {
         setError('An error occured while retrieving the latest jobs!');
       } finally {
@@ -23,7 +29,7 @@ const useGetJobs = () => {
     []
   );
 
-  return { jobs, error, loading, fetchJobs };
+  return { jobs, fetchJobs, loading, error };
 };
 
 export default useGetJobs;

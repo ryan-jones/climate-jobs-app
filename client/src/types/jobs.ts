@@ -18,10 +18,17 @@ export interface JobFilters {
   posted?: string;
   source?: string;
   companyName?: string;
+  offset?: number;
 }
 
-export type FilterOptions = Partial<
-  Record<keyof JobFilters, { value: any; queryString: string }>
->;
+export type SelectedFilterOptions = {
+  filters: Partial<
+    Record<
+      keyof Omit<JobFilters, 'offset'>,
+      { value: any; queryString: string }
+    >
+  >;
+  offset: number;
+};
 
 export type JobFilterQueryValues = Partial<Record<keyof JobFilters, any>>;

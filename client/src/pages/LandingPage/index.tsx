@@ -1,34 +1,50 @@
 import { Flex, Stack, Text, Hide, Show } from '@chakra-ui/react';
-import { useCallback, useEffect, useRef } from 'react';
-import FilterPanel from './FilterPanel';
-import useGetJobs from '../../hooks/useGetJobs';
-import { JobFilterQueryValues } from '../../types/jobs';
+import { useEffect, useState } from 'react';
+import FilterPanel from '../../components/FilterPanel';
+import { SelectedFilterOptions, JobFilters } from '../../types/jobs';
 import { formatTimestamp } from '../../utils/dates';
 import JobSection from './JobSection';
-import FilterDrawer from './FilterDrawer';
+import FilterDrawer from '../../components/FilterDrawer';
+import useDebouncedValue from '../../hooks/useDebounce';
+import useGetJobs from '../../hooks/useGetJobs';
 
-const HomePage = () => {
-  const { jobs, error, loading, fetchJobs } = useGetJobs();
-  const hasMadeInitialFetch = useRef(false);
+const DEFAULT_QUERY_FILTERS = { filters: {}, offset: 0 };
+const buildQueryResult = (
+  queryFilters: SelectedFilterOptions
+): Partial<Record<keyof JobFilters, any>> => {
+  return Object.entries(queryFilters.filters).reduce(
+    (queryObj: Partial<Record<keyof JobFilters, any>>, [key, value]) => {
+      queryObj[key as keyof JobFilters] = value.queryString;
+      return queryObj;
+    },
+    { offset: queryFilters.offset }
+  );
+};
+
+const LandingPage = () => {
+  const { jobs, loading, error, fetchJobs } = useGetJobs();
+  const [queryFilters, setQueryFilters] = useState<SelectedFilterOptions>(
+    DEFAULT_QUERY_FILTERS
+  );
+  const debouncedQueryFilters = useDebouncedValue(queryFilters, 1000);
 
   useEffect(() => {
-    if (!hasMadeInitialFetch.current) {
-      hasMadeInitialFetch.current = true;
-      fetchJobs();
-    }
-  }, [fetchJobs]);
+    const queryResult = buildQueryResult(debouncedQueryFilters);
+    fetchJobs(queryResult, debouncedQueryFilters.offset === 0);
+  }, [fetchJobs, debouncedQueryFilters]);
 
-  const onSubmitQueryWithFilters = useCallback(
-    (queryParams: JobFilterQueryValues) => {
-      fetchJobs(queryParams);
-    },
-    [fetchJobs]
-  );
+  const onClearFilters = () => {
+    setQueryFilters(DEFAULT_QUERY_FILTERS);
+  };
 
   return (
     <Flex direction="row" height="calc(100% - 83px)">
       <Hide below="md">
-        <FilterPanel onSubmitQueryWithFilters={onSubmitQueryWithFilters} />
+        <FilterPanel
+          onClearFilters={onClearFilters}
+          queryFilters={queryFilters}
+          setQueryFilters={setQueryFilters}
+        />
       </Hide>
 
       <Stack
@@ -51,13 +67,22 @@ const HomePage = () => {
           width="100%"
         >
           <Show below="md">
-            <FilterDrawer onSubmitQueryWithFilters={onSubmitQueryWithFilters} />
+            <FilterDrawer
+              onClearFilters={onClearFilters}
+              queryFilters={queryFilters}
+              setQueryFilters={setQueryFilters}
+            />
           </Show>
-          <JobSection jobs={jobs} loading={loading} error={error} />
+          <JobSection
+            jobs={jobs}
+            loading={loading}
+            error={error}
+            setQueryFilters={setQueryFilters}
+          />
         </Stack>
       </Stack>
     </Flex>
   );
 };
 
-export default HomePage;
+export default LandingPage;

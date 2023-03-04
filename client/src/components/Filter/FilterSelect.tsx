@@ -1,6 +1,7 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { ActionMeta, Select } from 'chakra-react-select';
-import { FilterOptions, JobFilters } from '../../types/jobs';
+import { SelectedFilterOptions, JobFilters } from '../../types/jobs';
+import { queryFormatter } from '../../utils/queries';
 
 const convertToQueryClause = (name: string, selected: readonly Option[]) => {
   const stringifiedArray = selected.reduce(
@@ -12,7 +13,7 @@ const convertToQueryClause = (name: string, selected: readonly Option[]) => {
   return `${name} IN (${stringifiedArray})`;
 };
 
-type Option = { value: string; label: string };
+export type Option = { value: string | number; label: string };
 
 interface FilterSelectProps {
   label: string;
@@ -20,7 +21,7 @@ interface FilterSelectProps {
   value: Option[];
   placeholder: string;
   options: Option[];
-  setQueryFilters: React.Dispatch<React.SetStateAction<FilterOptions>>;
+  setQueryFilters: React.Dispatch<React.SetStateAction<SelectedFilterOptions>>;
 }
 const FilterSelect = ({
   name,
@@ -42,13 +43,14 @@ const FilterSelect = ({
         selected: readonly Option[],
         actionMeta: ActionMeta<Option>
       ) => {
-        setQueryFilters((prev) => ({
-          ...prev,
-          [name]: {
-            value: selected,
-            queryString: convertToQueryClause(name, selected),
-          },
-        }));
+        setQueryFilters((prev) =>
+          queryFormatter(prev, {
+            [name]: {
+              value: selected,
+              queryString: convertToQueryClause(name, selected),
+            },
+          })
+        );
       }}
     />
   </FormControl>

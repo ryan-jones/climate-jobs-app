@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 from api.database import init_db
-from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS
+from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS, RETRIEVE_JOBS_COUNT
 from api.services.jobs import get_climate_jobs, create_job_sectors
 
 
@@ -21,7 +21,8 @@ def get_sectors(cursor):
 
 @init_db
 def get_jobs(cursor, filters):
-    where_filters = [filters[key] for key in filters if key != 'sectors']
+    where_filters = [filters[key]
+                     for key in filters if key not in ['sectors', 'offset']]
 
     where_clause = "WHERE " + \
         " AND ".join(where_filters) if where_filters else ""
@@ -55,7 +56,7 @@ def get_jobs(cursor, filters):
     return response
 
 
-@ init_db
+@init_db
 def update_jobs_list(cursor):
     try:
         data = get_climate_jobs()
@@ -78,3 +79,14 @@ def update_jobs_list(cursor):
         return {"message": f"{data['count']} jobs added"}, 201
     except (psycopg2.Error) as error:
         print('Failed to insert job records', error)
+
+
+@init_db
+def get_job_total_count(cursor):
+    try:
+        cursor.execute(RETRIEVE_JOBS_COUNT)
+        data = cursor.fetchone()[0]
+        print('COUNT DATA', data)
+        return {"count": data}
+    except (psycopg2.Error) as error:
+        print('Failed to retrieve jobs count', error)

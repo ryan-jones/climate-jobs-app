@@ -1,20 +1,32 @@
 import { JobFilters } from '../types/jobs';
 
+const URL = process.env.REACT_APP_API_URL;
 export default class API {
+  static getTotalCount = async () => {
+    try {
+      const response = await fetch(`${URL}/api/jobs/total`);
+
+      if (!response.ok) {
+        throw new Error('Network response was not OK');
+      }
+      const data = await response.json();
+      return data.count;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   static getJobs = async (
     queryParams: Partial<Record<keyof JobFilters, any>> = {}
   ) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/jobs`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(queryParams),
-        }
-      );
+      const response = await fetch(`${URL}/api/jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(queryParams),
+      });
 
       if (!response.ok) {
         throw new Error('Network response was not OK');
@@ -41,9 +53,7 @@ export default class API {
 
   static getSectors = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/sectors`
-      );
+      const response = await fetch(`${URL}/api/sectors`);
 
       if (!response.ok) {
         throw new Error('Network response was not OK');

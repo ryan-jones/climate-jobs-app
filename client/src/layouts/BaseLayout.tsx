@@ -6,7 +6,7 @@ interface BaseLayoutProps {
   children: ReactNode;
 }
 const BaseLayout = ({ children }: BaseLayoutProps) => (
-  <Box height="100vh" id="app-container" border="1px solid black">
+  <Box height="100vh" id="app-container">
     <Flex
       width="100%"
       px={8}
