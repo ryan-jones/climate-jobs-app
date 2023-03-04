@@ -6,7 +6,7 @@ from config import Config
 
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:3000',
-     'https://climate-jobs-app.vercel.app/', 'https://climate-jobs-app.onrender.com'])
+     'https://climate-jobs-app.vercel.app'])
 
 app.config.from_object(Config)
 
