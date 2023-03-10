@@ -1,21 +1,43 @@
 import json
 import ast
+import multiprocessing
+
 import psycopg2
 from psycopg2.extras import execute_values
+from sectors.services import format_sector
+from jobs.climate_base import get_climate_base_jobs
+from jobs.climate_people import get_climate_people_jobs
+from database import init_db
+from database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_JOBS_COUNT, RETRIEVE_SECTOR
 
-from api.database import init_db
-from api.database.queries import INSERT_JOB_SECTOR, INSERT_JOBS, DELETE_JOBS, DELETE_JOB_SECTORS, RETRIEVE_SECTORS, RETRIEVE_JOBS_COUNT
-from api.services.jobs import get_climate_jobs, create_job_sectors
+
+def create_job_sectors(cursor, job_id, sector):
+    formatted_sector = format_sector(sector)
+    cursor.execute(RETRIEVE_SECTOR, ([formatted_sector]))
+    result = cursor.fetchone()
+    if result is None:
+        print(f'None value for {formatted_sector}')
+        return (job_id, None)
+    sector_id = result[0]
+    return (job_id, sector_id)
 
 
-@init_db
-def get_sectors(cursor):
-    '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
-    cursor.execute(RETRIEVE_SECTORS)
-    data = cursor.fetchall()
-    # Convert each row to a dictionary
-    results = [{key: value for key, value in row[0].items()} for row in data]
-    return results
+def get_climate_jobs():
+    pool = multiprocessing.Pool()
+    pages = list(range(3))
+
+    # Request jobs from both sources concurrently
+    climate_base_jobs = pool.map(get_climate_base_jobs, pages)
+    climate_people_jobs = pool.map(get_climate_people_jobs, pages)
+
+    # Flatten the lists
+    climate_base_jobs = [job for page in climate_base_jobs for job in page]
+    climate_people_jobs = [job for page in climate_people_jobs for job in page]
+
+    # Combine the results and sort by posting date
+    climate_jobs = climate_base_jobs + climate_people_jobs
+    # return {'count': len(climate_jobs), 'jobs': sorted(climate_jobs, key=lambda d: d['posted'], reverse=True)}
+    return {'count': len(climate_jobs), 'jobs': climate_jobs}
 
 
 @init_db

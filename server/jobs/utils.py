@@ -10,9 +10,11 @@ def format_climate_base_date_to_timestamp(match):
         # second group of CLIMATE_BASE_PATTERN regex pattern: \d
         num = int(match.group(2))
 
-        # third group of CLIMATE_BASE_PATTERN regex pattern: (days|hours|weeks)
+        # third group of CLIMATE_BASE_PATTERN regex pattern: (days|hours|weeks|months)
         unit = match.group(3)
-        if unit == 'days':
+        if unit == 'months':
+            delta = datetime.timedelta(months=num)
+        elif unit == 'days':
             delta = datetime.timedelta(days=num)
         else:
             delta = datetime.timedelta(hours=num)
@@ -23,7 +25,7 @@ def format_climate_base_date_to_timestamp(match):
         raise error
 
 
-CLIMATE_BASE_PATTERN = r"^(about )?(\d+) (day||hour|week)s? ago$"
+CLIMATE_BASE_PATTERN = r"^(about )?(\d+) (day|hour|week|month)s? ago$"
 
 
 def format_posting(date_string):

@@ -1,3 +1,7 @@
+from database import init_db
+from database.queries import RETRIEVE_SECTORS
+
+
 def format_sector(sector):
     sector_name = sector.lower()
 
@@ -35,3 +39,13 @@ def format_sector(sector):
         return 'environmental solutions'
 
     return sector_name
+
+
+@init_db
+def get_sectors(cursor):
+    '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
+    cursor.execute(RETRIEVE_SECTORS)
+    data = cursor.fetchall()
+    # Convert each row to a dictionary
+    results = [{key: value for key, value in row[0].items()} for row in data]
+    return results

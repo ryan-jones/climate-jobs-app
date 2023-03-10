@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
-from api.services.jobs.utils import format_posting
+from jobs.utils import format_posting
 
 
 def build_job_object(url):
