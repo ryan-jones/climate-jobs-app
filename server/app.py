@@ -14,20 +14,24 @@ from config import Config
 def configure_logging(app):
     # Deactivate the default flask logger so that log messages don't get duplicated
     app.logger.removeHandler(default_handler)
-    # Create a file handler object
     file_handler = RotatingFileHandler(
         'app.log', maxBytes=16384, backupCount=20)
-    # Set the logging level of the file handler object so that it logs INFO and up
+    # Set the logging level to INFO and above
     file_handler.setLevel(logging.INFO)
-    # Create a file formatter object
     file_formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(filename)s: %(lineno)d]')
-
-    # Apply the file formatter object to the file handler object
     file_handler.setFormatter(file_formatter)
-
-    # Add file handler object to the logger
     app.logger.addHandler(file_handler)
+
+
+def initialize_scheduler(app):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        func=lambda: update_jobs_list(app),
+        trigger='interval',
+        minutes=30,
+    )
+    scheduler.start()
 
 
 def create_app(test_config=None):
@@ -45,13 +49,7 @@ def create_app(test_config=None):
 
     configure_logging(app)
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        func=lambda: update_jobs_list(app),
-        trigger='interval',
-        minutes=30,
-    )
-    scheduler.start()
+    initialize_scheduler(app)
 
     return app
 
