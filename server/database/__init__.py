@@ -3,12 +3,12 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
 def initialize_db_connection():
     db_url = os.getenv("DATABASE_URL")
-    print('DATABASE URL IS', db_url)
     connection = psycopg2.connect(db_url)
     return connection
 

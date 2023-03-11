@@ -20,7 +20,8 @@ export default class API {
     queryParams: Partial<Record<keyof JobFilters, any>> = {}
   ) => {
     try {
-      const response = await fetch(`${URL}/api/jobs`, {
+      // Necessary to add the suffix / due to how Flask treats routing
+      const response = await fetch(`${URL}/api/jobs/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

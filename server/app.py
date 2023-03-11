@@ -1,17 +1,17 @@
 from jobs import bp as jobs_bp
-from sectors import bp as sectors_bp
 from jobs.services import update_jobs_list
-from flask import Flask, render_template
+from sectors import bp as sectors_bp
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_crontab import Crontab
+from apscheduler.schedulers.background import BackgroundScheduler
+import logging
+from flask.logging import default_handler
+from logging.handlers import RotatingFileHandler
 
 from config import Config
 
 
 def configure_logging(app):
-    import logging
-    from flask.logging import default_handler
-    from logging.handlers import RotatingFileHandler
     # Deactivate the default flask logger so that log messages don't get duplicated
     app.logger.removeHandler(default_handler)
     # Create a file handler object
@@ -32,8 +32,9 @@ def configure_logging(app):
 
 def create_app(test_config=None):
     app = Flask(__name__)
+
     CORS(app, origins=['http://localhost:3000',
-                       'https://climate-jobs-app.vercel.app'])
+         'https://climate-jobs-app.vercel.app'])
     if test_config:
         app.config.from_mapping(test_config)
     else:
@@ -44,13 +45,13 @@ def create_app(test_config=None):
 
     configure_logging(app)
 
-    crontab = Crontab(app)
-
-    @crontab.job(minute="1")
-    def schedule_update_jobs_list():
-        print('Scheduled update started')
-        update_jobs_list()
-        print('Scheduled update completed')
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        func=lambda: update_jobs_list(app),
+        trigger='interval',
+        minutes=30,
+    )
+    scheduler.start()
 
     return app
 

@@ -1,33 +1,38 @@
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
+from flask import current_app
+
 from jobs.utils import format_posting
 
 
 def build_job_object(url):
-    source = urlparse(url).netloc
-    climate_jobs = []
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    jobs = soup.select('.job-post-cardhomehome')
+    try:
+        source = urlparse(url).netloc
+        climate_jobs = []
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        jobs = soup.select('.job-post-cardhomehome')
 
-    for job in jobs:
-        job_link = job.select_one('.job-card-company-name')
-        job_title = job.select_one('.job-card-title')
-        sectors = [x.getText()
-                   for x in job.select('.job-card-company-name > div')]
-        job_posting = job.select_one('.job-card-date')
-        climate_jobs.append({
-            'source': source,
-            'href': f"https://{source}{job_link.get('href', None)}",
-            'title': job_title.getText(),
-            'company': 'Unknown',
-            'location': None,
-            'posted': format_posting(job_posting.getText().strip()),
-            'salary': None,
-            'sectors': sectors
-        })
-    return climate_jobs
+        for job in jobs:
+            job_link = job.select_one('.job-card-company-name')
+            job_title = job.select_one('.job-card-title')
+            sectors = [x.getText()
+                       for x in job.select('.job-card-company-name > div')]
+            job_posting = job.select_one('.job-card-date')
+            climate_jobs.append({
+                'source': source,
+                'href': f"https://{source}{job_link.get('href', None)}",
+                'title': job_title.getText(),
+                'company': 'Unknown',
+                'location': None,
+                'posted': format_posting(job_posting.getText().strip()),
+                'salary': None,
+                'sectors': sectors
+            })
+        return climate_jobs
+    except (requests.exceptions.HTTPError, requests.exceptions.RequestException, requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError) as error:
+        current_app.logger.error(error.args[0])
 
 
 def get_climate_people_jobs(page):

@@ -6,4 +6,4 @@ requests
 bs4
 gunicorn
 python-dateutil
-flask-crontab
+apscheduler

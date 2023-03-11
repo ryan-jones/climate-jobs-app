@@ -21,7 +21,7 @@ INSERT_JOB_SECTOR = (
     '''
 )
 
-DELETE_JOB_SECTORS = 'DELETE FROM job_sectors'
+DELETE_JOB_SECTORS = 'DELETE FROM job_sectors RETURNING *'
 
 
 ########### SECTOR QUERIES #############

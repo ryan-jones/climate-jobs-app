@@ -1,5 +1,7 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app
+
 import jobs.services as services
+
 
 bp = Blueprint('jobs', __name__)
 
@@ -12,7 +14,8 @@ def get_jobs_list():
 
 @bp.post('/update')
 def update_list():
-    return services.update_jobs_list()
+    with current_app.app_context():
+        return services.update_jobs_list(app=current_app._get_current_object())
 
 
 @bp.get('/total')

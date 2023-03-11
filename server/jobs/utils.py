@@ -25,7 +25,7 @@ def format_climate_base_date_to_timestamp(match):
         raise error
 
 
-CLIMATE_BASE_PATTERN = r"^(about )?(\d+) (day|hour|week|month)s? ago$"
+CLIMATE_BASE_PATTERN = r"^(about )?(\d+) (day|hour|week|month|minute|second)s? ago$"
 
 
 def format_posting(date_string):

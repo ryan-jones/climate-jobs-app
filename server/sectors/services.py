@@ -1,3 +1,5 @@
+from flask import current_app
+import psycopg2
 from database import init_db
 from database.queries import RETRIEVE_SECTORS
 
@@ -44,8 +46,14 @@ def format_sector(sector):
 @init_db
 def get_sectors(cursor):
     '''Retrieves sectors jobs can be categorized by (eg. "Energy", "Advocacy", etc)'''
-    cursor.execute(RETRIEVE_SECTORS)
-    data = cursor.fetchall()
-    # Convert each row to a dictionary
-    results = [{key: value for key, value in row[0].items()} for row in data]
-    return results
+    try:
+        current_app.logger.info('fetching sectors')
+
+        cursor.execute(RETRIEVE_SECTORS)
+        data = cursor.fetchall()
+        # Convert each row to a dictionary
+        results = [{key: value for key, value in row[0].items()}
+                   for row in data]
+        return results
+    except (psycopg2.Error) as error:
+        current_app.logger.error(f'failed to retrieve sectors => {error}')

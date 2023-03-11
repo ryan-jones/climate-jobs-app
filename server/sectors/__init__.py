@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint
 import sectors.services as services
 
 bp = Blueprint('sectors', __name__)
